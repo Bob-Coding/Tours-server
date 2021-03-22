@@ -1,4 +1,5 @@
 const express = require("express");
+const Tour = require("./../models/tourModel");
 
 exports.getAllUsers = (req, res) => {
   res.status(500).json({
