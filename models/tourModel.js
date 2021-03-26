@@ -87,7 +87,7 @@ const tourSchema = new mongoose.Schema(
       default: false,
     },
   },
-  //Into the Mongoose.schema we can pass in not only the object with the schema definition itself but also an object for the schema options
+  //Into the Mongoose.schema you can pass in not only the object with the schema definition itself but also an object for the schema options
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
@@ -128,7 +128,7 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
-  console.log(docs);
+
   next();
 });
 
