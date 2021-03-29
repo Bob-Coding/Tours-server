@@ -1,6 +1,7 @@
 const express = require("express");
 const Tour = require("../models/tourModel");
-const tourController = require("./../controllers/tourController");
+const tourController = require("../controllers/tourController");
+const authController = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router
 
 router
   .route("/")
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 
 router

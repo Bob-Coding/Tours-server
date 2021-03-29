@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const userRouter = require("./routes/userRouter");
 const tourRouter = require("./routes/tourRouter");
-const AppError = require("./utils/AppError");
+const AppError = require("./utils/appError");
 const globalErrorHandler = require("./utils/errorHandler");
 
 const app = express();
@@ -17,6 +17,7 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.headers);
   next();
 });
 
