@@ -4,17 +4,56 @@ const userRouter = require("./routes/userRouter");
 const tourRouter = require("./routes/tourRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./utils/errorHandler");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const hpp = require("hpp");
 
 const app = express();
 
-console.log(process.env.NODE_ENV);
-//MIDDLEWARES
+//1) GLOBAL MIDDLEWARES
+// set security HTTP headers
+app.use(helmet());
+
+// development logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// limiter for request per set timeframe
+const limiter = rateLimit({
+  max: 250,
+  // 1 hour window
+  windowMs: 60 * 60 * 1000,
+  message: "Too many requests from this IP, please try again in one hour.",
+});
+app.use("/api", limiter);
+
+// body parser, reading data from body into req.body
 app.use(express.json());
 
+// data sanitization against NoSQL query injection(Will filter out the query '$')
+app.use(mongoSanitize());
+
+// data sanitization against cross-site scripting attacks(XSS), will convert all the HTML symbols to prevend malicious code
+app.use(xss());
+
+// prevent parameter pollution, todo: make whitelist dynamic
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "ratingsQuantity",
+      "ratingsAverage",
+      "maxGroupSize",
+      "difficulty",
+      "price",
+    ],
+  })
+);
+
+// test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   console.log(req.headers);
