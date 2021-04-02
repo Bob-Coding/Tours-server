@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, "Please provide password"],
-    minLenghth: 8,
+    minLength: 8,
     select: false,
   },
   passwordConfirm: {
@@ -50,6 +50,13 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   // delete passwordconfirm field
   this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+  //-1000(-1s)small hack to put passwordChangedAt 1s in the past to ensure created JWT token is always created after password is changed
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
