@@ -86,43 +86,71 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // make it geospatial data by using the type(should be point or other geometries) and coordinates field
+      type: { type: String, default: "Point", enum: ["Point"] },
+      // coordinates are an array of Numbers with longitude first, latitude second. Usually works the way around(Google maps) but in GEOJSON this is how it works!
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    // embedded data model instead of normalised/reference data model
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
-  //Into the Mongoose.schema you can pass in not only the object with the schema definition itself but also an object for the schema options
+
+  // Into the Mongoose.schema you can pass in not only the object with the schema definition itself but also an object for the schema options
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
-//Can't use 'this' keyword with arrowfunctions so use oldfashioned way of function
+// Can't use 'this' keyword with arrowfunctions so use oldfashioned way of function
 tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
 });
 
 //DOCUMENT MIDDLEWARE:
-//Document pre-middleware: runs before and ONLY triggers with .save() and .create() also called the pre 'save' hook:
+// Document pre-middleware: runs before and ONLY triggers with .save() and .create() also called the pre 'save' hook:
 tourSchema.pre("save", function (next) {
   //add value of name into field slug before saving in db
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
-// tourSchema.pre("save", function (next) {
-//   console.log("will save document..");
-//   next();
-// });
-
-//Document post-middleware:
-// tourSchema.post("save", function (doc, next) {
-//   console.log(doc)
-//   next();
-// });
-
 //QUERY MIDDLEWARE:
-//use regular expression '/^find/' instead of 'find' to include ALL commands that start with find:( findOne, findOneAndDelete, findOneAndRemove, findOneAndUpdate )
+// use regular expression '/^find/' instead of 'find' to include ALL commands that start with find:( findOne, findOneAndDelete, findOneAndRemove, findOneAndUpdate )
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
 
   this.start = Date.now();
+  next();
+});
+
+// using the {ref:"User", type:userId} from guidesArray in tourModel to show the object of users instead of showing the strings of userIds  with .populate in every "find" query,
+// using an object in populate in this example to unselect the field __v and passwordChangedAt since we dont need to show them here, but only the string of the field "guides" will do
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt",
+  });
   next();
 });
 
