@@ -117,6 +117,7 @@ const tourSchema = new mongoose.Schema(
   },
 
   // Into the Mongoose.schema you can pass in not only the object with the schema definition itself but also an object for the schema options
+  // in this example a virtual field, basically a field that isnt stored in the db but calculated using some other values, we want to show with output
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },

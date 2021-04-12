@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const userRouter = require("./routes/userRouter");
 const tourRouter = require("./routes/tourRouter");
+const reviewRouter = require("./routes/reviewRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./utils/errorHandler");
 const rateLimit = require("express-rate-limit");
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 //ROUTES
 app.use("/api/tours", tourRouter);
 app.use("/api/users", userRouter);
+app.use("/api/reviews", reviewRouter);
 
 //if a request makes it to this point of code then it means the routers weren't able to catch it
 //so if a req is made to a route that isn't specified its catched here for any sort req with app.all
