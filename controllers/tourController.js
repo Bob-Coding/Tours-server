@@ -56,7 +56,7 @@ exports.getAllTours = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.getTour = catchAsyncErrors(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate();
   // Tour.findOne({ _id: req.params.id })
 
   if (!tour) {

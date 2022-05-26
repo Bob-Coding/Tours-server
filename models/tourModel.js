@@ -114,6 +114,12 @@ const tourSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    reviews: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Review",
+      },
+    ],
   },
 
   // Into the Mongoose.schema you can pass in not only the object with the schema definition itself but also an object for the schema options
@@ -126,6 +132,13 @@ const tourSchema = new mongoose.Schema(
 // Can't use 'this' keyword with arrowfunctions so use oldfashioned way of function
 tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
+});
+
+//virtual populate
+tourSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "tour",
+  localField: "_id",
 });
 
 //DOCUMENT MIDDLEWARE:
